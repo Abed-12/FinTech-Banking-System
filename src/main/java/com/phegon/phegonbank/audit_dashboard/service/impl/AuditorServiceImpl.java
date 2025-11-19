@@ -53,14 +53,22 @@ public class AuditorServiceImpl implements AuditorService {
     @Override
     public List<TransactionDTO> findTransactionsByAccountNumber(String accountNumber) {
         return transactionRepo.findByAccount_AccountNumber(accountNumber).stream()
-                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class))
+                .map(transaction -> {
+                    TransactionDTO dto = modelMapper.map(transaction, TransactionDTO.class);
+                    dto.setCurrency(transaction.getAccount().getCurrency());
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<TransactionDTO> findTransactionById(Long transactionId) {
         return transactionRepo.findById(transactionId)
-                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class));
+                .map(transaction -> {
+                    TransactionDTO dto = modelMapper.map(transaction, TransactionDTO.class);
+                    dto.setCurrency(transaction.getAccount().getCurrency());
+                    return dto;
+                });
     }
 
 }

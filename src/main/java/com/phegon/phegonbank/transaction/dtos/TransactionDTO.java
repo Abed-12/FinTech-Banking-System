@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.phegon.phegonbank.account.dtos.AccountDTO;
+import com.phegon.phegonbank.enums.Currency;
 import com.phegon.phegonbank.enums.TransactionStatus;
 import com.phegon.phegonbank.enums.TransactionType;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,8 @@ public class TransactionDTO {
     private Long id;
 
     private BigDecimal amount;
+
+    private Currency currency;
 
     private TransactionType transactionType;
 

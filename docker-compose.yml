@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - bank-network
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abed1234
+      POSTGRES_DB: bank
+    ports:
+      - "5433:5432"
+    networks:
+      - bank-network
+    volumes:
+      - postgres-bank-data:/var/lib/postgresql/data
+
+networks:
+  bank-network:
+    driver: bridge
+
+volumes:
+  postgres-bank-data:

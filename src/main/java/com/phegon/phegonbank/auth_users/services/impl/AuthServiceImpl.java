@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     private final CodeGenerator codeGenerator;
     private final PasswordResetCodeRepo passwordResetCodeRepo;
 
-    @Value("@{password.reset.link}")
+    @Value("${password.reset.link}")
     private String resetLink;
 
 

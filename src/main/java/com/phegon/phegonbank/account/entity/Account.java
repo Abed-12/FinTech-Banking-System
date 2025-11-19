@@ -49,6 +49,7 @@ public class Account {
     private AccountStatus status;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderBy("transactionDate DESC")
     private List<Transaction> transactions = new ArrayList<>();
 
     private LocalDateTime closedAt;

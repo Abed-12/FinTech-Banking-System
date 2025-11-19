@@ -81,8 +81,11 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = accountRepo.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getName()));
+
         // Make sure he accounts belongs to the user. an extra security check
-        if (!account.getUser().getId().equals(user.getId())) {
+        if (!account.getUser().getId().equals(user.getId()) && !isAdmin) {
             throw new BadRequestException("Account does not belong to the authenticated user");
         }
 
@@ -90,7 +93,11 @@ public class TransactionServiceImpl implements TransactionService {
         Page<Transaction> transactions = transactionRepo.findByAccount_AccountNumber(accountNumber, pageable);
 
         List<TransactionDTO> transactionDTOS = transactions.getContent().stream()
-                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class))
+                .map(transaction -> {
+                    TransactionDTO dto = modelMapper.map(transaction, TransactionDTO.class);
+                    dto.setCurrency(transaction.getAccount().getCurrency());
+                    return dto;
+                })
                 .toList();
 
         return Response.<List<TransactionDTO>>builder()
@@ -162,6 +169,7 @@ public class TransactionServiceImpl implements TransactionService {
         templateVariables.put("amount", transaction.getAmount());
         templateVariables.put("accountNumber", transaction.getAccount().getAccountNumber());
         templateVariables.put("date", transaction.getTransactionDate());
+        templateVariables.put("currency", transaction.getAccount().getCurrency());
         templateVariables.put("balance", transaction.getAccount().getBalance());
 
         if (transaction.getTransactionType() == TransactionType.DEPOSIT) {
@@ -208,10 +216,11 @@ public class TransactionServiceImpl implements TransactionService {
             User receiver = destinationAccount.getUser();
 
             Map<String, Object> receiverVariables = new HashMap<>();
-            receiverVariables.put("name", user.getFirstName());
+            receiverVariables.put("name", receiver.getFirstName());
             receiverVariables.put("amount", transaction.getAmount());
             receiverVariables.put("accountNumber", destinationAccount.getAccountNumber());
             receiverVariables.put("date", transaction.getTransactionDate());
+            receiverVariables.put("currency", destinationAccount.getCurrency());
             receiverVariables.put("balance", destinationAccount.getBalance());
 
             NotificationDTO notificationEmailToSendOutToReceiver = NotificationDTO.builder()
